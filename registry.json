@@ -1,0 +1,22 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry.json",
+  "name": "pill-toaster",
+  "homepage": "https://github.com/nabinkhair42/pill-toaster",
+  "items": [
+    {
+      "name": "pill-toaster",
+      "type": "registry:ui",
+      "title": "Pill Toaster",
+      "description": "An opinionated pill toast for React — one thing well, built on Base UI and themed with shadcn tokens.",
+      "dependencies": ["@base-ui/react", "lucide-react"],
+      "registryDependencies": ["utils"],
+      "files": [
+        {
+          "path": "src/components/ui/pill-toaster.tsx",
+          "type": "registry:ui",
+          "target": "components/ui/pill-toaster.tsx"
+        }
+      ]
+    }
+  ]
+}
