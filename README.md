@@ -5,7 +5,7 @@ An opinionated pill toast for React — one thing well, built on Base UI and the
 ## Install
 
 ```bash
-pnpm dlx shadcn@latest add https://raw.githubusercontent.com/nabinkhair42/pill-toaster/main/public/r/pill-toaster.json
+pnpm dlx shadcn@latest add https://toast.nabinkhair.com.np/r/pill-toaster.json
 ```
 
 Mount `Toaster` in your root layout:
@@ -43,4 +43,4 @@ pnpm registry:build
 pnpm dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
+Open [https://toast.nabinkhair.com.np](https://toast.nabinkhair.com.np) or run locally at [http://localhost:3000](http://localhost:3000).

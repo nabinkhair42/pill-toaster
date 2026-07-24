@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 
-import { HeroToastStack } from "@/components/hero-toast-stack";
+import { HeroToastShowcase } from "@/components/hero-toast-showcase";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { toast } from "@/components/ui/pill-toaster";
 import { cn } from "@/lib/utils";
@@ -19,22 +19,25 @@ export default function Home() {
   });
 
   return (
-    <main className="flex min-h-full flex-1 items-center justify-center bg-background px-6 py-16">
-      <div className="mx-auto flex w-full max-w-md flex-col items-center text-center">
-        <HeroToastStack />
+    <main className="relative flex min-h-full flex-1 flex-col items-center justify-center overflow-hidden bg-background px-6 py-16">
+      <div className="relative z-10 mx-auto flex w-full max-w-3xl flex-col items-center text-center">
+        <div className="hero-enter hero-enter-delay-0 w-full">
+          <HeroToastShowcase />
+        </div>
 
-        <h1 className="mt-8 text-balance text-4xl font-semibold leading-[1.1] tracking-tight text-foreground sm:text-5xl">
+        <h1 className="hero-enter hero-enter-delay-1 -mt-6 text-balance text-4xl font-semibold leading-[1.1] tracking-tight text-foreground sm:-mt-8 sm:text-5xl">
           Pill Toaster
         </h1>
 
-        <p className="mt-3 max-w-[32ch] text-pretty text-[17px] leading-relaxed text-muted-foreground">
-          An opinionated toast that does one thing well.
+        <p className="hero-enter hero-enter-delay-2 mt-3 max-w-[40ch] text-pretty text-base leading-normal text-muted-foreground">
+          Success, error, info, warning, loading, and actions — one pill surface
+          that does the job.
         </p>
 
-        <div className="mt-4 flex flex-wrap items-center justify-center gap-2.5">
+        <div className="hero-enter hero-enter-delay-3 mt-8 flex flex-wrap items-center justify-center gap-2.5">
           <Button
             type="button"
-            className="select-none transition-transform active:scale-[0.96]"
+            size="lg"
             onClick={() =>
               toast.success("Event created", {
                 description: `${todayDate} at ${todayTime}`,
@@ -43,25 +46,13 @@ export default function Home() {
           >
             Render a toast
           </Button>
-          <a
-            href="https://github.com/nabinkhair42/pill-toaster"
-            target="_blank"
-            rel="noreferrer"
-            className={cn(
-              buttonVariants({ variant: "outline" }),
-              "select-none transition-transform active:scale-[0.96]",
-            )}
+          <Link
+            href="/docs"
+            className={cn(buttonVariants({ variant: "outline", size: "lg" }))}
           >
-            GitHub
-          </a>
+            Documentation
+          </Link>
         </div>
-
-        <Link
-          href="/docs"
-          className="mt-3 text-sm text-muted-foreground underline decoration-transparent underline-offset-4 transition-[color,text-decoration-color] duration-150 ease-[cubic-bezier(0.2,0,0,1)] hover:text-foreground hover:decoration-foreground/30"
-        >
-          Documentation
-        </Link>
       </div>
     </main>
   );

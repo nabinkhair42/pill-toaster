@@ -1,10 +1,12 @@
+import { siteConfig } from "@/lib/site";
+
 export function InstallationSection() {
   return (
     <section>
       <h2 id="installation">Installation</h2>
       <p>Install with the shadcn CLI:</p>
       <pre>
-        <code>{`pnpm dlx shadcn@latest add https://raw.githubusercontent.com/nabinkhair42/pill-toaster/main/public/r/pill-toaster.json`}</code>
+        <code>{`pnpm dlx shadcn@latest add ${siteConfig.url}/r/pill-toaster.json`}</code>
       </pre>
       <p>
         Mount <code>Toaster</code> once in your root layout:

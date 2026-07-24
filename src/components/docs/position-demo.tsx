@@ -37,7 +37,6 @@ export function PositionDemo() {
             key={value}
             variant={value === position ? "default" : "outline"}
             size="sm"
-            className="transition-transform active:scale-[0.96]"
             onClick={() => {
               flushSync(() => setPosition(value));
               manager.add({

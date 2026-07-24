@@ -50,7 +50,7 @@ const toastTypeStyles = {
   },
   error: {
     icon: X,
-    iconClassName: "bg-destructive text-white",
+    iconClassName: "bg-destructive text-[oklch(1_0_0)]",
   },
   info: {
     icon: Info,
@@ -183,7 +183,7 @@ function ToastRoot({
       )}
       {...props}
     >
-      <ToastPrimitive.Content className="flex items-center gap-2 px-2 py-2">
+      <ToastPrimitive.Content className="flex items-center gap-2 px-2.5 py-2">
         <span
           className={cn(
             "flex size-4 shrink-0 items-center justify-center rounded-full",
@@ -197,14 +197,14 @@ function ToastRoot({
         </span>
         <div className="flex min-w-0 items-baseline gap-1.5">
           {toastItem.title != null && (
-            <ToastPrimitive.Title className="m-0 truncate text-[13px] font-medium leading-none tracking-tight text-primary-foreground" />
+            <ToastPrimitive.Title className="m-0 truncate text-xs font-medium leading-none tracking-tight text-primary-foreground" />
           )}
           {toastItem.description != null && (
-            <ToastPrimitive.Description className="m-0 truncate text-[13px] leading-none text-primary-foreground/65" />
+            <ToastPrimitive.Description className="m-0 truncate text-xs leading-none tabular-nums text-primary-foreground/75" />
           )}
         </div>
         {toastItem.actionProps ? (
-          <ToastPrimitive.Action className="ml-1 shrink-0 rounded-full bg-primary-foreground/15 px-2 py-0.5 text-[12px] font-medium text-primary-foreground transition-[transform,background-color] duration-150 ease-[cubic-bezier(0.2,0,0,1)] hover:bg-primary-foreground/25 active:scale-[0.96] motion-reduce:transition-none" />
+          <ToastPrimitive.Action className="ml-1 shrink-0 rounded-full bg-primary-foreground/15 px-2 py-0.5 text-xs font-medium text-primary-foreground transition-[transform,background-color] duration-150 ease-[cubic-bezier(0.2,0,0,1)] hover:bg-primary-foreground/25 active:scale-[0.96] motion-reduce:transition-none" />
         ) : null}
       </ToastPrimitive.Content>
     </ToastPrimitive.Root>
