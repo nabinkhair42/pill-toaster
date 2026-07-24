@@ -24,14 +24,12 @@ type ToastSwipeDirection = "up" | "down" | "left" | "right";
 
 const positionClassNames: Record<ToastPosition, string> = {
   "top-left": "top-(--toast-offset) left-(--toast-offset) items-start",
-  "top-center":
-    "top-(--toast-offset) left-1/2 -translate-x-1/2 items-center",
+  "top-center": "top-(--toast-offset) left-1/2 -translate-x-1/2 items-center",
   "top-right": "top-(--toast-offset) right-(--toast-offset) items-end",
   "bottom-left": "bottom-(--toast-offset) left-(--toast-offset) items-start",
   "bottom-center":
     "bottom-(--toast-offset) left-1/2 -translate-x-1/2 items-center",
-  "bottom-right":
-    "bottom-(--toast-offset) right-(--toast-offset) items-end",
+  "bottom-right": "bottom-(--toast-offset) right-(--toast-offset) items-end",
 };
 
 const swipeDirectionByPosition: Record<ToastPosition, ToastSwipeDirection> = {
@@ -75,10 +73,7 @@ type ToasterProps = ToastPrimitive.Provider.Props & {
   className?: string;
 };
 
-function ToastProvider({
-  children,
-  ...props
-}: ToastPrimitive.Provider.Props) {
+function ToastProvider({ children, ...props }: ToastPrimitive.Provider.Props) {
   return (
     <ToastPrimitive.Provider toastManager={toastManager} {...props}>
       {children}
@@ -149,7 +144,9 @@ function ToastRoot({
       swipeDirection={swipeDirection}
       className={cn(
         "pointer-events-auto relative w-max max-w-[min(100%,20rem)] select-none will-change-[transform,opacity]",
-        isTop ? "origin-top mb-1.5 last:mb-0" : "origin-bottom mt-1.5 last:mt-0",
+        isTop
+          ? "origin-top mb-1.5 last:mb-0"
+          : "origin-bottom mt-1.5 last:mt-0",
         "rounded-full bg-primary text-primary-foreground",
         "shadow-[0_1px_1px_oklch(0_0_0/0.04),0_8px_24px_oklch(0_0_0/0.12)]",
         // Track finger via Base UI swipe CSS vars
@@ -221,11 +218,7 @@ function Toaster({
   ...props
 }: ToasterProps) {
   return (
-    <ToastPrimitive.Provider
-      toastManager={manager}
-      limit={limit}
-      {...props}
-    >
+    <ToastPrimitive.Provider toastManager={manager} limit={limit} {...props}>
       {children}
       <ToastPrimitive.Portal>
         <ToastViewport

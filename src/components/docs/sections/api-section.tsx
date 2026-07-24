@@ -16,8 +16,8 @@ export function ApiSection() {
         </li>
         <li>
           <code>timeout</code> — default auto-dismiss duration in ms (
-          <code>0</code> disables). Each toast lives until this fires
-          (or swipe/close), so the stack grows and shrinks naturally
+          <code>0</code> disables). Each toast lives until this fires (or
+          swipe/close), so the stack grows and shrinks naturally
         </li>
         <li>
           <code>limit</code> — optional cap on concurrently visible toasts
