@@ -98,7 +98,7 @@ function ToastViewport({
       data-slot="toast-viewport"
       data-position={position}
       className={cn(
-        "pointer-events-none fixed z-50 flex w-max max-w-[min(100vw-2rem,20rem)] outline-none",
+        "pointer-events-none fixed z-99 flex w-max max-w-[min(100vw-2rem,20rem)] outline-none",
         isBottom ? "flex-col-reverse" : "flex-col",
         positionClassNames[position],
         className,
