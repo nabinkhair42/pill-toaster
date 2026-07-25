@@ -48,7 +48,7 @@ const toastTypeStyles = {
   },
   error: {
     icon: X,
-    iconClassName: "bg-destructive text-[oklch(1_0_0)]",
+    iconClassName: "bg-destructive text-primary-foreground",
   },
   info: {
     icon: Info,
@@ -72,14 +72,6 @@ type ToasterProps = ToastPrimitive.Provider.Props & {
   offset?: number | string;
   className?: string;
 };
-
-function ToastProvider({ children, ...props }: ToastPrimitive.Provider.Props) {
-  return (
-    <ToastPrimitive.Provider toastManager={toastManager} {...props}>
-      {children}
-    </ToastPrimitive.Provider>
-  );
-}
 
 function ToastViewport({
   position = "top-center",
@@ -148,7 +140,7 @@ function ToastRoot({
           ? "origin-top mb-1.5 last:mb-0"
           : "origin-bottom mt-1.5 last:mt-0",
         "rounded-full bg-primary text-primary-foreground",
-        "shadow-[0_1px_1px_oklch(0_0_0/0.04),0_8px_24px_oklch(0_0_0/0.12)]",
+        "shadow-sm shadow-foreground/10",
         // Track finger via Base UI swipe CSS vars
         "translate-x-(--toast-swipe-movement-x,0px) translate-y-(--toast-swipe-movement-y,0px)",
         // Enter: springy ease-out · exit: snappier ease-in
@@ -276,7 +268,6 @@ const createToastManager = ToastPrimitive.createToastManager;
 
 export {
   Toaster,
-  ToastProvider,
   createToastManager,
   toast,
   toastManager,

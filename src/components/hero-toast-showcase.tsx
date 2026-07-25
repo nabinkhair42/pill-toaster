@@ -30,7 +30,7 @@ const samples: HeroToast[] = [
     id: "error",
     title: "Could not save",
     Icon: X,
-    iconClassName: "bg-destructive text-[oklch(1_0_0)]",
+    iconClassName: "bg-destructive text-primary-foreground",
     positionClassName: "left-[8%] top-[22%] z-20 -rotate-6 sm:left-[12%]",
   },
   {
@@ -85,8 +85,7 @@ function HeroPill({ toast: item, index }: { toast: HeroToast; index: number }) {
           className={cn(
             "hero-toast origin-center rounded-full",
             "bg-foreground text-background",
-            "shadow-[0_1px_1px_oklch(0_0_0/0.06),0_12px_32px_oklch(0_0_0/0.16)]",
-            "dark:shadow-[0_1px_1px_oklch(0_0_0/0.35),0_14px_36px_oklch(0_0_0/0.5)]",
+            "shadow-md shadow-foreground/15 dark:shadow-lg dark:shadow-foreground/40",
             /* Pop in — same language as the live toaster enter */
             "animate-in fade-in zoom-in-50 blur-in-sm slide-in-from-top-3",
             "fill-mode-both duration-500",

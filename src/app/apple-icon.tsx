@@ -3,6 +3,12 @@ import { ImageResponse } from "next/og";
 export const size = { width: 180, height: 180 };
 export const contentType = "image/png";
 
+/** Stone theme literals for ImageResponse (no CSS variables). */
+const stone = {
+  primary: "#1c1917",
+  primaryForeground: "#fafaf9",
+} as const;
+
 export default function AppleIcon() {
   return new ImageResponse(
     <div
@@ -12,7 +18,7 @@ export default function AppleIcon() {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        backgroundColor: "#171717",
+        backgroundColor: stone.primary,
         borderRadius: 36,
       }}
     >
@@ -21,7 +27,7 @@ export default function AppleIcon() {
           width: 112,
           height: 44,
           borderRadius: 999,
-          backgroundColor: "#fafafa",
+          backgroundColor: stone.primaryForeground,
         }}
       />
     </div>,
