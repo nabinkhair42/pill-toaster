@@ -2,6 +2,7 @@
 import { DocsHeader } from "@/components/docs/docs-header";
 import { ApiSection } from "@/components/docs/sections/api-section";
 import { InstallationSection } from "@/components/docs/sections/installation-section";
+import { MigrateSection } from "@/components/docs/sections/migrate-section";
 import { PositionSection } from "@/components/docs/sections/position-section";
 import { TypesSection } from "@/components/docs/sections/types-section";
 import { UsageSection } from "@/components/docs/sections/usage-section";
@@ -29,6 +30,7 @@ export function DocsPage() {
         <UsageSection />
         <TypesSection />
         <PositionSection />
+        <MigrateSection />
         <ApiSection />
       </article>
     </div>
