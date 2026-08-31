@@ -85,11 +85,11 @@ function HeroPill({ toast: item, index }: { toast: HeroToast; index: number }) {
           className={cn(
             "hero-toast origin-center rounded-full",
             "bg-foreground text-background",
-            "shadow-md shadow-foreground/15 dark:shadow-lg dark:shadow-foreground/40",
-            /* Pop in — same language as the live toaster enter */
-            "animate-in fade-in zoom-in-50 blur-in-sm slide-in-from-top-3",
-            "fill-mode-both duration-500",
-            "ease-[cubic-bezier(0.16,1,0.3,1)]",
+            "shadow-[0_0_0_1px_oklch(0_0_0/0.06),0_1px_2px_-1px_oklch(0_0_0/0.08),0_2px_8px_0_oklch(0_0_0/0.06)]",
+            "dark:shadow-[0_0_0_1px_oklch(1_0_0/0.1),0_2px_8px_0_oklch(0_0_0/0.45)]",
+            "animate-in fade-in zoom-in-95 blur-in-sm slide-in-from-top-6",
+            "fill-mode-both duration-700",
+            "ease-[linear(0,0.0037_0.9%,0.016_1.8%,0.065_3.6%,0.14_5.5%,0.32_9.3%,0.545_14.5%,0.715_19.2%,0.845_24.3%,0.928_29.4%,0.975_34.8%,0.995_40.4%,1.002_46.5%,1.003_53%,1.001_67%,1)]",
             "motion-reduce:animate-none motion-reduce:opacity-100",
           )}
           style={delayStyle}
@@ -98,16 +98,8 @@ function HeroPill({ toast: item, index }: { toast: HeroToast; index: number }) {
             <span
               className={cn(
                 "flex size-4 shrink-0 items-center justify-center rounded-full",
-                "animate-in zoom-in-50 fade-in fill-mode-both duration-300",
-                "ease-[cubic-bezier(0.16,1,0.3,1)]",
-                "motion-reduce:animate-none",
                 item.iconClassName,
               )}
-              style={
-                {
-                  "--tw-animation-delay": `${delayMs + 120}ms`,
-                } as CSSProperties
-              }
             >
               <Icon className="size-2.5" strokeWidth={3} />
             </span>
@@ -142,7 +134,7 @@ export function HeroToastShowcase({ className }: { className?: string }) {
     <div
       aria-hidden
       className={cn(
-        "hero-toast-showcase hero-toast-mask relative mx-auto h-[22rem] w-full max-w-3xl sm:h-[24rem]",
+        "hero-toast-showcase hero-toast-mask relative mx-auto h-88 w-full max-w-3xl sm:h-96",
         className,
       )}
     >

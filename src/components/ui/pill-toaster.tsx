@@ -1,16 +1,12 @@
 "use client";
 
-import { Toast as ToastPrimitive } from "@base-ui/react/toast";
+import { Toast } from "@base-ui/react/toast";
 import { AlertTriangle, Check, Info, LoaderCircle, X } from "lucide-react";
 import type { CSSProperties, ReactNode } from "react";
 
 import { cn } from "@/lib/utils";
 
-const toastManager = ToastPrimitive.createToastManager();
-
-// Match Sonner: keep every toast alive until its own timeout dismisses it.
-// Base UI's default `limit` is 3 and marks older toasts as `data-limited`.
-const DEFAULT_LIMIT = Number.POSITIVE_INFINITY;
+const toastManager = Toast.createToastManager();
 
 type ToastPosition =
   | "top-left"
@@ -20,257 +16,161 @@ type ToastPosition =
   | "bottom-center"
   | "bottom-right";
 
-type ToastSwipeDirection = "up" | "down" | "left" | "right";
+type ToastOptions = Parameters<typeof toastManager.add>[0];
 
-const positionClassNames: Record<ToastPosition, string> = {
-  "top-left": "top-(--toast-offset) left-(--toast-offset) items-start",
-  "top-center": "top-(--toast-offset) left-1/2 -translate-x-1/2 items-center",
-  "top-right": "top-(--toast-offset) right-(--toast-offset) items-end",
-  "bottom-left": "bottom-(--toast-offset) left-(--toast-offset) items-start",
-  "bottom-center":
-    "bottom-(--toast-offset) left-1/2 -translate-x-1/2 items-center",
-  "bottom-right": "bottom-(--toast-offset) right-(--toast-offset) items-end",
-};
-
-const swipeDirectionByPosition: Record<ToastPosition, ToastSwipeDirection> = {
-  "top-left": "left",
-  "top-center": "up",
-  "top-right": "right",
-  "bottom-left": "left",
-  "bottom-center": "down",
-  "bottom-right": "right",
-};
-
-const toastTypeStyles = {
-  success: {
-    icon: Check,
-    iconClassName: "bg-primary-foreground text-primary",
-  },
-  error: {
-    icon: X,
-    iconClassName: "bg-destructive text-primary-foreground",
-  },
-  info: {
-    icon: Info,
-    iconClassName: "bg-primary-foreground/20 text-primary-foreground",
-  },
-  warning: {
-    icon: AlertTriangle,
-    iconClassName: "bg-primary-foreground/20 text-primary-foreground",
-  },
-  loading: {
-    icon: LoaderCircle,
-    iconClassName:
-      "bg-primary-foreground/20 text-primary-foreground [&_svg]:animate-spin",
-  },
-} as const;
-
-type ToastType = keyof typeof toastTypeStyles;
-
-type ToasterProps = ToastPrimitive.Provider.Props & {
+type ToasterProps = Toast.Provider.Props & {
   position?: ToastPosition;
   offset?: number | string;
   className?: string;
 };
 
-function ToastViewport({
-  position = "top-center",
-  offset = 16,
-  className,
-  ...props
-}: ToastPrimitive.Viewport.Props & {
-  position?: ToastPosition;
-  offset?: number | string;
-}) {
-  const offsetValue = typeof offset === "number" ? `${offset}px` : offset;
-  const isBottom = position.startsWith("bottom");
+const icons = {
+  success: Check,
+  error: X,
+  info: Info,
+  warning: AlertTriangle,
+  loading: LoaderCircle,
+} as const;
 
-  return (
-    <ToastPrimitive.Viewport
-      data-slot="toast-viewport"
-      data-position={position}
-      className={cn(
-        "pointer-events-none fixed z-99 flex w-max max-w-[min(100vw-2rem,20rem)] outline-none",
-        isBottom ? "flex-col-reverse" : "flex-col",
-        positionClassNames[position],
-        className,
-      )}
-      style={{ ["--toast-offset" as string]: offsetValue } as CSSProperties}
-      {...props}
-    />
-  );
-}
+type ToastType = keyof typeof icons;
 
-function ToastList({ position = "top-center" }: { position?: ToastPosition }) {
-  const { toasts } = ToastPrimitive.useToastManager();
-  const swipeDirection = swipeDirectionByPosition[position];
+const chip = {
+  success: "bg-primary-foreground text-primary",
+  error: "bg-destructive text-primary-foreground",
+  info: "bg-primary-foreground/20",
+  warning: "bg-primary-foreground/20",
+  loading:
+    "bg-primary-foreground/20 [&_svg]:animate-spin motion-reduce:[&_svg]:animate-none",
+} as const;
 
-  return toasts.map((toastItem) => (
-    <ToastRoot
-      key={toastItem.id}
-      toast={toastItem}
-      position={position}
-      swipeDirection={swipeDirection}
-    />
-  ));
-}
-
-function ToastRoot({
-  toast: toastItem,
-  position = "top-center",
-  className,
-  swipeDirection = "up",
-  ...props
-}: ToastPrimitive.Root.Props & {
-  position?: ToastPosition;
-}) {
-  const type = (toastItem.type as ToastType | undefined) ?? "success";
-  const style = toastTypeStyles[type] ?? toastTypeStyles.success;
-  const Icon = style.icon;
+function ToastList({ position }: { position: ToastPosition }) {
+  const { toasts } = Toast.useToastManager();
   const isTop = position.startsWith("top");
+  const swipe = position.endsWith("left")
+    ? "left"
+    : position.endsWith("right")
+      ? "right"
+      : isTop
+        ? "up"
+        : "down";
 
-  return (
-    <ToastPrimitive.Root
-      data-slot="toast"
-      toast={toastItem}
-      swipeDirection={swipeDirection}
-      className={cn(
-        "pointer-events-auto relative w-max max-w-[min(100%,20rem)] select-none will-change-[transform,opacity]",
-        isTop
-          ? "origin-top mb-1.5 last:mb-0"
-          : "origin-bottom mt-1.5 last:mt-0",
-        "rounded-full bg-primary text-primary-foreground",
-        "shadow-sm shadow-foreground/10",
-        // Track finger via Base UI swipe CSS vars
-        "translate-x-(--toast-swipe-movement-x,0px) translate-y-(--toast-swipe-movement-y,0px)",
-        // Enter: springy ease-out · exit: snappier ease-in
-        "transition-[transform,opacity,filter,margin,padding,height] duration-400 ease-[cubic-bezier(0.16,1,0.3,1)]",
-        "data-ending-style:duration-200 data-ending-style:ease-in",
-        "data-swiping:transition-none",
-        // Enter from the edge
-        isTop
-          ? "data-starting-style:-translate-y-5"
-          : "data-starting-style:translate-y-5",
-        "data-starting-style:scale-95 data-starting-style:opacity-0 data-starting-style:blur-[3px]",
-        // Soft auto-dismiss exit
-        isTop
-          ? "data-ending-style:-translate-y-2"
-          : "data-ending-style:translate-y-2",
-        "data-ending-style:scale-[0.97] data-ending-style:opacity-0 data-ending-style:blur-[2px]",
-        // Swipe fling — continue past the finger release point
-        "data-ending-style:data-[swipe-direction=up]:translate-y-[calc(var(--toast-swipe-movement-y,0px)-130%)] data-ending-style:data-[swipe-direction=up]:scale-95 data-ending-style:data-[swipe-direction=up]:opacity-0 data-ending-style:data-[swipe-direction=up]:blur-none",
-        "data-ending-style:data-[swipe-direction=down]:translate-y-[calc(var(--toast-swipe-movement-y,0px)+130%)] data-ending-style:data-[swipe-direction=down]:scale-95 data-ending-style:data-[swipe-direction=down]:opacity-0 data-ending-style:data-[swipe-direction=down]:blur-none",
-        "data-ending-style:data-[swipe-direction=left]:translate-x-[calc(var(--toast-swipe-movement-x,0px)-130%)] data-ending-style:data-[swipe-direction=left]:scale-95 data-ending-style:data-[swipe-direction=left]:opacity-0 data-ending-style:data-[swipe-direction=left]:blur-none",
-        "data-ending-style:data-[swipe-direction=right]:translate-x-[calc(var(--toast-swipe-movement-x,0px)+130%)] data-ending-style:data-[swipe-direction=right]:scale-95 data-ending-style:data-[swipe-direction=right]:opacity-0 data-ending-style:data-[swipe-direction=right]:blur-none",
-        // Over limit: collapse so the stack reflows
-        "data-limited:pointer-events-none data-limited:h-0 data-limited:overflow-hidden data-limited:opacity-0 data-limited:scale-95 data-limited:blur-xs data-limited:border-0 data-limited:p-0 data-limited:m-0 data-limited:shadow-none",
-        // Reduced motion
-        "motion-reduce:transition-none motion-reduce:will-change-auto",
-        "motion-reduce:data-starting-style:translate-y-0 motion-reduce:data-starting-style:scale-100 motion-reduce:data-starting-style:opacity-100 motion-reduce:data-starting-style:blur-none",
-        "motion-reduce:data-ending-style:translate-y-0 motion-reduce:data-ending-style:scale-100",
-        className,
-      )}
-      {...props}
-    >
-      <ToastPrimitive.Content className="flex items-center gap-2 px-2.5 py-2">
-        <span
-          className={cn(
-            "flex size-4 shrink-0 items-center justify-center rounded-full",
-            "animate-in zoom-in-50 fade-in duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] fill-mode-both",
-            "motion-reduce:animate-none",
-            style.iconClassName,
-          )}
-          aria-hidden
-        >
-          <Icon className="size-2.5" strokeWidth={3} />
-        </span>
-        <div className="flex min-w-0 items-baseline gap-1.5">
-          {toastItem.title != null && (
-            <ToastPrimitive.Title className="m-0 truncate text-xs font-medium leading-none tracking-tight text-primary-foreground" />
-          )}
-          {toastItem.description != null && (
-            <ToastPrimitive.Description className="m-0 truncate text-xs leading-none tabular-nums text-primary-foreground/75" />
-          )}
-        </div>
-        {toastItem.actionProps ? (
-          <ToastPrimitive.Action className="ml-1 shrink-0 rounded-full bg-primary-foreground/15 px-2 py-0.5 text-xs font-medium text-primary-foreground transition-[transform,background-color] duration-150 ease-[cubic-bezier(0.2,0,0,1)] hover:bg-primary-foreground/25 active:scale-[0.96] motion-reduce:transition-none" />
-        ) : null}
-      </ToastPrimitive.Content>
-    </ToastPrimitive.Root>
-  );
+  return toasts.map((item) => {
+    const type =
+      item.type && item.type in icons ? (item.type as ToastType) : "success";
+    const Icon = icons[type];
+
+    return (
+      <Toast.Root
+        key={item.id}
+        toast={item}
+        swipeDirection={swipe}
+        className={cn(
+          "pointer-events-auto relative w-max max-w-[min(100%,20rem)] rounded-full bg-primary text-primary-foreground shadow-lg select-none transform-gpu",
+          "translate-x-(--toast-swipe-movement-x,0px) translate-y-(--toast-swipe-movement-y,0px)",
+          "[transition-property:transform,opacity,filter]",
+          "duration-[620ms,280ms,420ms]",
+          "ease-[linear(0,0.0037_0.9%,0.016_1.8%,0.065_3.6%,0.14_5.5%,0.32_9.3%,0.545_14.5%,0.715_19.2%,0.845_24.3%,0.928_29.4%,0.975_34.8%,0.995_40.4%,1.002_46.5%,1.003_53%,1.001_67%,1),cubic-bezier(0.2,0,0,1),cubic-bezier(0.2,0,0,1)]",
+          "data-ending-style:duration-[340ms,200ms,260ms]",
+          "data-ending-style:ease-[cubic-bezier(0.4,0,1,1),cubic-bezier(0.4,0,1,1),cubic-bezier(0.4,0,1,1)]",
+          "data-swiping:transition-none motion-reduce:transition-none",
+          "data-starting-style:opacity-0 data-starting-style:scale-[0.92] data-starting-style:blur-md",
+          "data-ending-style:opacity-0 data-ending-style:scale-[0.97] data-ending-style:blur-xl",
+          isTop
+            ? "origin-top data-starting-style:-translate-y-6 data-ending-style:-translate-y-3"
+            : "origin-bottom data-starting-style:translate-y-6 data-ending-style:translate-y-3",
+          "data-ending-style:data-swipe-direction:translate-x-[calc(var(--toast-swipe-movement-x,0px)*2)] data-ending-style:data-swipe-direction:translate-y-[calc(var(--toast-swipe-movement-y,0px)*2)] data-ending-style:data-swipe-direction:scale-100 data-ending-style:data-swipe-direction:blur-none",
+          "data-limited:hidden",
+        )}
+      >
+        <Toast.Content className="flex items-center gap-2 px-2.5 py-2">
+          <span
+            className={cn(
+              "flex size-4 shrink-0 items-center justify-center rounded-full",
+              chip[type],
+            )}
+            aria-hidden
+          >
+            <Icon className="size-2.5" strokeWidth={3} />
+          </span>
+          <div className="flex min-w-0 items-baseline gap-1.5">
+            <Toast.Title className="m-0 truncate text-xs font-medium" />
+            <Toast.Description className="m-0 truncate text-xs tabular-nums opacity-75" />
+          </div>
+          <Toast.Action className="ml-1 shrink-0 rounded-full bg-primary-foreground/15 px-2 py-0.5 text-xs font-medium hover:bg-primary-foreground/25" />
+        </Toast.Content>
+      </Toast.Root>
+    );
+  });
 }
 
 function Toaster({
   position = "top-center",
   offset = 16,
-  limit = DEFAULT_LIMIT,
+  limit = Number.POSITIVE_INFINITY,
   toastManager: manager = toastManager,
   className,
   children,
   ...props
 }: ToasterProps) {
+  const isTop = position.startsWith("top");
+  const isLeft = position.endsWith("left");
+  const isRight = position.endsWith("right");
+
   return (
-    <ToastPrimitive.Provider toastManager={manager} limit={limit} {...props}>
+    <Toast.Provider toastManager={manager} limit={limit} {...props}>
       {children}
-      <ToastPrimitive.Portal>
-        <ToastViewport
-          position={position}
-          offset={offset}
-          className={className}
+      <Toast.Portal>
+        <Toast.Viewport
+          data-position={position}
+          className={cn(
+            "pointer-events-none fixed z-99 flex w-max max-w-[min(100vw-2rem,20rem)] gap-2 outline-none",
+            isTop
+              ? "top-(--toast-offset) flex-col"
+              : "bottom-(--toast-offset) flex-col-reverse",
+            isLeft && "left-(--toast-offset) items-start",
+            isRight && "right-(--toast-offset) items-end",
+            !isLeft && !isRight && "left-1/2 -translate-x-1/2 items-center",
+            className,
+          )}
+          style={
+            {
+              "--toast-offset":
+                typeof offset === "number" ? `${offset}px` : offset,
+            } as CSSProperties
+          }
         >
           <ToastList position={position} />
-        </ToastViewport>
-      </ToastPrimitive.Portal>
-    </ToastPrimitive.Provider>
+        </Toast.Viewport>
+      </Toast.Portal>
+    </Toast.Provider>
   );
 }
 
-type ToastOptions = Parameters<typeof toastManager.add>[0];
-
 function toast(options: ToastOptions | string) {
-  if (typeof options === "string") {
-    return toastManager.add({ title: options, type: "success" });
-  }
-  return toastManager.add({ type: "success", ...options });
+  return toastManager.add(
+    typeof options === "string"
+      ? { title: options, type: "success" }
+      : { type: "success", ...options },
+  );
 }
 
-toast.add = toastManager.add.bind(toastManager);
-toast.update = toastManager.update.bind(toastManager);
-toast.promise = toastManager.promise.bind(toastManager);
-toast.close = toastManager.close.bind(toastManager);
+function add(type: ToastType, defaults?: Partial<ToastOptions>) {
+  return (title: ReactNode, options?: Omit<ToastOptions, "title" | "type">) =>
+    toastManager.add({ ...defaults, ...options, title, type });
+}
 
-toast.success = (
-  title: ReactNode,
-  options?: Omit<ToastOptions, "title" | "type">,
-) => toastManager.add({ ...options, title, type: "success" });
+Object.assign(toast, {
+  add: toastManager.add.bind(toastManager),
+  update: toastManager.update.bind(toastManager),
+  promise: toastManager.promise.bind(toastManager),
+  close: toastManager.close.bind(toastManager),
+  success: add("success"),
+  error: add("error"),
+  info: add("info"),
+  warning: add("warning"),
+  loading: add("loading", { timeout: 0 }),
+});
 
-toast.error = (
-  title: ReactNode,
-  options?: Omit<ToastOptions, "title" | "type">,
-) => toastManager.add({ ...options, title, type: "error" });
+export { Toaster, toast, toastManager, type ToastPosition, type ToasterProps };
 
-toast.info = (
-  title: ReactNode,
-  options?: Omit<ToastOptions, "title" | "type">,
-) => toastManager.add({ ...options, title, type: "info" });
-
-toast.warning = (
-  title: ReactNode,
-  options?: Omit<ToastOptions, "title" | "type">,
-) => toastManager.add({ ...options, title, type: "warning" });
-
-toast.loading = (
-  title: ReactNode,
-  options?: Omit<ToastOptions, "title" | "type">,
-) => toastManager.add({ ...options, title, type: "loading", timeout: 0 });
-
-const createToastManager = ToastPrimitive.createToastManager;
-
-export {
-  Toaster,
-  createToastManager,
-  toast,
-  toastManager,
-  type ToastPosition,
-  type ToasterProps,
-};
+export const createToastManager = Toast.createToastManager;

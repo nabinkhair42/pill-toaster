@@ -11,13 +11,13 @@ import {
   type ToastPosition,
 } from "@/components/ui/pill-toaster";
 
-const positions: ToastPosition[] = [
-  "top-left",
-  "top-center",
-  "top-right",
-  "bottom-left",
-  "bottom-center",
-  "bottom-right",
+const positions: { value: ToastPosition; label: string }[] = [
+  { value: "top-left", label: "Top Left" },
+  { value: "top-center", label: "Top Center" },
+  { value: "top-right", label: "Top Right" },
+  { value: "bottom-left", label: "Bottom Left" },
+  { value: "bottom-center", label: "Bottom Center" },
+  { value: "bottom-right", label: "Bottom Right" },
 ];
 
 export function PositionDemo() {
@@ -32,7 +32,7 @@ export function PositionDemo() {
         Active: <code>{position}</code>
       </p>
       <DocsDemo>
-        {positions.map((value) => (
+        {positions.map(({ value, label }) => (
           <Button
             key={value}
             variant={value === position ? "default" : "outline"}
@@ -40,12 +40,12 @@ export function PositionDemo() {
             onClick={() => {
               flushSync(() => setPosition(value));
               manager.add({
-                title: value,
+                title: label,
                 type: "success",
               });
             }}
           >
-            {value}
+            {label}
           </Button>
         ))}
       </DocsDemo>

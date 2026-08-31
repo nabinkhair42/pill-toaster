@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect, useRef, useState } from "react";
 
 import { buttonVariants } from "@/components/ui/button";
 import { siteConfig } from "@/lib/site";
@@ -22,16 +23,44 @@ function GitHubIcon({ className }: { className?: string }) {
 }
 
 export function DocsHeader() {
+  const [hidden, setHidden] = useState(false);
+  const lastY = useRef(0);
+
+  useEffect(() => {
+    lastY.current = window.scrollY;
+
+    const onScroll = () => {
+      const y = window.scrollY;
+      const delta = y - lastY.current;
+
+      if (y < 8) {
+        setHidden(false);
+      } else if (delta > 4) {
+        setHidden(true);
+      } else if (delta < -4) {
+        setHidden(false);
+      }
+
+      lastY.current = y;
+    };
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
   return (
-    <header className="sticky top-0 z-40 bg-background/90 backdrop-blur-sm">
+    <header
+      className={cn(
+        "sticky top-0 z-50 border-b border-transparent bg-background/80 backdrop-blur-md transition-transform duration-300 ease-out",
+        "motion-reduce:transition-none",
+        hidden ? "-translate-y-full" : "translate-y-0",
+      )}
+    >
       <div className="mx-auto flex h-14 max-w-2xl items-center justify-between px-6">
-        <Link
-          href="/"
-          className="font-medium tracking-tight text-foreground underline decoration-transparent underline-offset-4 transition-[color,text-decoration-color] duration-150 ease-[cubic-bezier(0.2,0,0,1)] hover:decoration-foreground/30"
-        >
+        <Link href="/" className="font-medium tracking-tight text-foreground">
           Pill Toaster
         </Link>
-        <a
+        <Link
           href={siteConfig.links.github}
           target="_blank"
           rel="noreferrer"
@@ -39,7 +68,7 @@ export function DocsHeader() {
         >
           <GitHubIcon className="size-4" />
           GitHub
-        </a>
+        </Link>
       </div>
     </header>
   );

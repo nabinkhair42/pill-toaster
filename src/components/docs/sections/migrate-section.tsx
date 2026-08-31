@@ -32,12 +32,12 @@ function CopyPromptButton({
     <Button
       type="button"
       variant="outline"
-      size="sm"
+      size="xs"
       aria-label={copied ? `Copied ${label} prompt` : `Copy ${label} prompt`}
       className="shrink-0 gap-1.5"
       onClick={copy}
     >
-      {copied ? <Check /> : <Copy />}
+      {copied ? <Check className="size-3" /> : <Copy className="size-3" />}
       {copied ? "Copied" : "Copy prompt"}
     </Button>
   );
