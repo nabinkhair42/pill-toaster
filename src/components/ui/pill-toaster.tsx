@@ -146,30 +146,48 @@ function Toaster({
   );
 }
 
-function toast(options: ToastOptions | string) {
-  return toastManager.add(
-    typeof options === "string"
-      ? { title: options, type: "success" }
-      : { type: "success", ...options },
-  );
-}
+type ToastHelper = (
+  title: ReactNode,
+  options?: Omit<ToastOptions, "title" | "type">,
+) => string;
 
-function add(type: ToastType, defaults?: Partial<ToastOptions>) {
-  return (title: ReactNode, options?: Omit<ToastOptions, "title" | "type">) =>
+type ToastApi = {
+  (options: ToastOptions | string): string;
+  add: typeof toastManager.add;
+  update: typeof toastManager.update;
+  promise: typeof toastManager.promise;
+  close: typeof toastManager.close;
+  success: ToastHelper;
+  error: ToastHelper;
+  info: ToastHelper;
+  warning: ToastHelper;
+  loading: ToastHelper;
+};
+
+function add(type: ToastType, defaults?: Partial<ToastOptions>): ToastHelper {
+  return (title, options) =>
     toastManager.add({ ...defaults, ...options, title, type });
 }
 
-Object.assign(toast, {
-  add: toastManager.add.bind(toastManager),
-  update: toastManager.update.bind(toastManager),
-  promise: toastManager.promise.bind(toastManager),
-  close: toastManager.close.bind(toastManager),
-  success: add("success"),
-  error: add("error"),
-  info: add("info"),
-  warning: add("warning"),
-  loading: add("loading", { timeout: 0 }),
-});
+const toast: ToastApi = Object.assign(
+  (options: ToastOptions | string) =>
+    toastManager.add(
+      typeof options === "string"
+        ? { title: options, type: "success" }
+        : { type: "success", ...options },
+    ),
+  {
+    add: toastManager.add.bind(toastManager),
+    update: toastManager.update.bind(toastManager),
+    promise: toastManager.promise.bind(toastManager),
+    close: toastManager.close.bind(toastManager),
+    success: add("success"),
+    error: add("error"),
+    info: add("info"),
+    warning: add("warning"),
+    loading: add("loading", { timeout: 0 }),
+  },
+);
 
 export { Toaster, toast, toastManager, type ToastPosition, type ToasterProps };
 
