@@ -10,7 +10,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "pnpm registry:build && opennextjs-cloudflare build",
+    "build": "next build",
+    "build:cf": "pnpm registry:build && opennextjs-cloudflare build",
     "deploy": "opennextjs-cloudflare deploy",
     "preview": "opennextjs-cloudflare preview",
     "registry:build": "shadcn build",
