@@ -2,7 +2,7 @@ export const siteConfig = {
   name: "Pill Toaster",
   shortName: "Pill Toaster",
   description:
-    "An opinionated pill toast for React — one thing well, built on Base UI and shadcn.",
+    "An opinionated pill toast for React — one thing well. Frosted pill, stacked pile, smoky drag-to-dismiss.",
   url: "https://toast.nabinkhair.com.np",
   ogImage: "/opengraph-image",
   author: {
@@ -18,7 +18,7 @@ export const siteConfig = {
     "pill toast",
     "notification",
     "shadcn",
-    "base ui",
+    "motion",
     "pill toaster",
     "react notification",
   ],

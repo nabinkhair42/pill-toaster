@@ -1,16 +1,15 @@
 import type { LucideIcon } from "lucide-react";
 import { AlertTriangle, Check, Info, LoaderCircle, X } from "lucide-react";
-import type { CSSProperties } from "react";
 
 import { cn } from "@/lib/utils";
+
+type HeroState = "success" | "error" | "info" | "warning" | "loading";
 
 type HeroToast = {
   id: string;
   title: string;
-  description?: string;
+  state: HeroState;
   action?: string;
-  Icon: LucideIcon;
-  iconClassName: string;
   /** Absolute placement only — keep transforms off the animated pill. */
   positionClassName: string;
 };
@@ -20,58 +19,80 @@ const samples: HeroToast[] = [
   {
     id: "success",
     title: "Event created",
-    description: "Today at 9:00 AM",
-    Icon: Check,
-    iconClassName: "bg-background text-foreground",
+    state: "success",
     positionClassName:
       "left-1/2 top-[42%] z-30 -translate-x-1/2 -translate-y-1/2",
   },
   {
     id: "error",
     title: "Could not save",
-    Icon: X,
-    iconClassName: "bg-destructive text-primary-foreground",
+    state: "error",
     positionClassName: "left-[8%] top-[22%] z-20 -rotate-6 sm:left-[12%]",
   },
   {
     id: "info",
     title: "Be there 10 minutes early",
-    Icon: Info,
-    iconClassName: "bg-background/20 text-background",
+    state: "info",
     positionClassName: "right-[6%] top-[18%] z-20 rotate-3 sm:right-[10%]",
   },
   {
     id: "warning",
     title: "Starts before 8am",
-    Icon: AlertTriangle,
-    iconClassName: "bg-background/20 text-background",
+    state: "warning",
     positionClassName: "left-[4%] bottom-[28%] z-10 -rotate-3 sm:left-[8%]",
   },
   {
     id: "loading",
     title: "Creating event…",
-    Icon: LoaderCircle,
-    iconClassName: "bg-background/20 text-background [&_svg]:animate-spin",
+    state: "loading",
     positionClassName: "right-[4%] bottom-[26%] z-10 rotate-2 sm:right-[8%]",
   },
   {
     id: "action",
     title: "Invite sent",
+    state: "success",
     action: "Undo",
-    Icon: Check,
-    iconClassName: "bg-background text-foreground",
     positionClassName: "left-1/2 bottom-[12%] z-20 -translate-x-1/2",
   },
 ];
 
-const popDelaysMs = [80, 180, 280, 380, 480, 580] as const;
+const toneIcon: Record<
+  Exclude<HeroState, "success" | "loading">,
+  LucideIcon
+> = {
+  error: X,
+  warning: AlertTriangle,
+  info: Info,
+};
+
+const toneInk: Record<Exclude<HeroState, "success" | "loading">, string> = {
+  error: "text-destructive",
+  warning: "text-amber-500 dark:text-amber-400",
+  info: "text-sky-500 dark:text-sky-400",
+};
+
+const popDelays = [
+  "delay-[80ms]",
+  "delay-[180ms]",
+  "delay-[280ms]",
+  "delay-[380ms]",
+  "delay-[480ms]",
+  "delay-[580ms]",
+] as const;
+
+function HeroGlyph({ state }: { state: HeroState }) {
+  if (state === "loading") {
+    return <LoaderCircle className="size-4 animate-spin" aria-hidden />;
+  }
+  if (state === "success") {
+    return <Check className="size-4" strokeWidth={3} aria-hidden />;
+  }
+  const Mark = toneIcon[state];
+  return <Mark className={cn("size-4", toneInk[state])} aria-hidden />;
+}
 
 function HeroPill({ toast: item, index }: { toast: HeroToast; index: number }) {
-  const Icon = item.Icon;
-  const delayMs = popDelaysMs[index] ?? 80 + index * 100;
-  const delayStyle = {
-    "--tw-animation-delay": `${delayMs}ms`,
-  } as CSSProperties;
+  const delay = popDelays[index] ?? "delay-[80ms]";
 
   return (
     <div
@@ -84,38 +105,27 @@ function HeroPill({ toast: item, index }: { toast: HeroToast; index: number }) {
         <div
           className={cn(
             "hero-toast origin-center rounded-full",
-            "bg-foreground text-background",
+            "bg-popover text-sm text-foreground",
             "shadow-[0_0_0_1px_oklch(0_0_0/0.06),0_1px_2px_-1px_oklch(0_0_0/0.08),0_2px_8px_0_oklch(0_0_0/0.06)]",
             "dark:shadow-[0_0_0_1px_oklch(1_0_0/0.1),0_2px_8px_0_oklch(0_0_0/0.45)]",
             "animate-in fade-in zoom-in-95 blur-in-sm slide-in-from-top-6",
             "fill-mode-both duration-700",
             "ease-[linear(0,0.0037_0.9%,0.016_1.8%,0.065_3.6%,0.14_5.5%,0.32_9.3%,0.545_14.5%,0.715_19.2%,0.845_24.3%,0.928_29.4%,0.975_34.8%,0.995_40.4%,1.002_46.5%,1.003_53%,1.001_67%,1)]",
             "motion-reduce:animate-none motion-reduce:opacity-100",
+            delay,
+            item.action ? "py-1.5 pr-1.5 pl-3" : "px-4 py-2",
           )}
-          style={delayStyle}
         >
-          <div className="flex items-center gap-2 px-3 py-2.5">
-            <span
-              className={cn(
-                "flex size-4 shrink-0 items-center justify-center rounded-full",
-                item.iconClassName,
-              )}
-            >
-              <Icon className="size-2.5" strokeWidth={3} />
+          <div className="flex items-center gap-2">
+            <span className="flex size-4 shrink-0 items-center justify-center">
+              <HeroGlyph state={item.state} />
             </span>
-            <div className="flex min-w-0 items-baseline gap-1.5">
-              <span className="truncate text-xs font-medium leading-none tracking-tight">
-                {item.title}
-              </span>
-              {item.description ? (
-                <span className="truncate text-xs leading-none tabular-nums text-background/70">
-                  {item.description}
-                </span>
-              ) : null}
-            </div>
+            <span className="truncate font-normal">{item.title}</span>
             {item.action ? (
-              <span className="ms-0.5 shrink-0 rounded-full bg-background/15 px-2 py-0.5 text-xs font-medium text-background">
-                {item.action}
+              <span className="w-max pl-7">
+                <span className="inline-flex h-7 shrink-0 items-center justify-center rounded-full bg-primary px-2.5 text-xs font-medium whitespace-nowrap text-primary-foreground">
+                  {item.action}
+                </span>
               </span>
             ) : null}
           </div>
@@ -126,7 +136,7 @@ function HeroPill({ toast: item, index }: { toast: HeroToast; index: number }) {
 }
 
 /**
- * Product shot for the homepage: real pill toasts (types + action),
+ * Product shot for the homepage: real pill toasts (states + action),
  * softly masked so the composition fades into the page.
  */
 export function HeroToastShowcase({ className }: { className?: string }) {

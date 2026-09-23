@@ -1,6 +1,6 @@
 # Pill Toaster
 
-An opinionated pill toast for React — one thing well, built on Base UI and themed with shadcn tokens.
+An opinionated pill toast for React — one thing well. Frosted pill, stacked pile, smoky drag-to-dismiss, animated with Motion.
 
 ## Install
 
@@ -8,17 +8,19 @@ An opinionated pill toast for React — one thing well, built on Base UI and the
 pnpm dlx shadcn@latest add https://toast.nabinkhair.com.np/r/pill-toaster.json
 ```
 
-Mount `Toaster` in your root layout:
+The CLI installs the `Button` prerequisite automatically (plus `motion` and `lucide-react` from npm).
+
+Mount `Toasts` once in your root layout (toasts fire on a global bus, a second host renders every toast twice):
 
 ```tsx
-import { Toaster } from "@/components/ui/pill-toaster"
+import { Toasts } from "@/components/ui/pill-toaster"
 
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body>
         {children}
-        <Toaster position="top-center" />
+        <Toasts position="top-center" />
       </body>
     </html>
   )
@@ -30,9 +32,18 @@ export default function RootLayout({ children }) {
 ```tsx
 import { toast } from "@/components/ui/pill-toaster"
 
-toast.success("Event created", {
-  description: "Sunday, December 3 at 9:00 AM",
-})
+toast("Copied")
+toast({ message: "Event created", state: "success" })
+toast({ message: "Something went wrong", state: "error" })
+```
+
+Pending work updates in place by reusing the `id`:
+
+```tsx
+const id = "saving"
+toast({ id, message: "Saving…", state: "pending" })
+await save()
+toast({ id, message: "Saved", state: "success" })
 ```
 
 ## Develop

@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 
 import { ThemeProvider } from "@/components/theme-provider";
-import { Toaster } from "@/components/ui/pill-toaster";
+import { ToastsHost } from "@/components/toasts-host";
 import { siteConfig } from "@/lib/site";
 
 import "./globals.css";
@@ -112,8 +112,7 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          {children}
-          <Toaster position="top-center" />
+          <ToastsHost>{children}</ToastsHost>
         </ThemeProvider>
       </body>
     </html>

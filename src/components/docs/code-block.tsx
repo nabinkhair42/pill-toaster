@@ -20,10 +20,10 @@ export function CodeBlock({
     try {
       await navigator.clipboard.writeText(code);
       setCopied(true);
-      toast.success("Copied");
+      toast({ message: "Copied", state: "success" });
       window.setTimeout(() => setCopied(false), 1600);
     } catch {
-      toast.error("Couldn’t copy");
+      toast({ message: "Couldn’t copy", state: "error" });
     }
   }
 

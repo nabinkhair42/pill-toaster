@@ -6,14 +6,14 @@ import { siteConfig } from "@/lib/site";
 export const metadata: Metadata = {
   title: "Documentation",
   description:
-    "Install Pill Toaster from the shadcn registry. Types, actions, promises, positions, and the Toaster API.",
+    "Install Pill Toaster from the shadcn registry. Types, actions, pending updates, positions, and the Toasts API.",
   alternates: {
     canonical: "/docs",
   },
   openGraph: {
     title: `Documentation · ${siteConfig.name}`,
     description:
-      "Install Pill Toaster from the shadcn registry. Types, actions, promises, positions, and the Toaster API.",
+      "Install Pill Toaster from the shadcn registry. Types, actions, pending updates, positions, and the Toasts API.",
     url: `${siteConfig.url}/docs`,
   },
 };

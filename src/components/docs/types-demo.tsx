@@ -4,17 +4,16 @@ import { useState } from "react";
 
 import { DocsDemo } from "@/components/docs/docs-demo";
 import { Button } from "@/components/ui/button";
-import { toast } from "@/components/ui/pill-toaster";
+import { dismissToast, toast } from "@/components/ui/pill-toaster";
 
 type ToastDemoKind =
   | "default"
-  | "description"
   | "success"
   | "info"
   | "warning"
   | "error"
   | "action"
-  | "promise";
+  | "pending";
 
 const toastDemos: {
   kind: ToastDemoKind;
@@ -29,92 +28,91 @@ const toastDemos: {
     run: () => toast("Event has been created"),
   },
   {
-    kind: "description",
-    label: "Description",
-    code: `toast.success("Event has been created", {
-  description: "Monday, January 3rd at 6:00pm",
-})`,
-    run: () =>
-      toast.success("Event has been created", {
-        description: "Monday, January 3rd at 6:00pm",
-      }),
-  },
-  {
     kind: "success",
     label: "Success",
-    code: `toast.success("Event has been created")`,
-    run: () => toast.success("Event has been created"),
+    code: `toast({ message: "Event has been created", state: "success" })`,
+    run: () => toast({ message: "Event has been created", state: "success" }),
   },
   {
     kind: "info",
     label: "Info",
-    code: `toast.info("Be at the area 10 minutes before the event time")`,
-    run: () => toast.info("Be at the area 10 minutes before the event time"),
+    code: `toast({
+  message: "Be at the area 10 minutes before the event time",
+  state: "info",
+})`,
+    run: () =>
+      toast({
+        message: "Be at the area 10 minutes before the event time",
+        state: "info",
+      }),
   },
   {
     kind: "warning",
     label: "Warning",
-    code: `toast.warning("Event start time cannot be earlier than 8am")`,
-    run: () => toast.warning("Event start time cannot be earlier than 8am"),
+    code: `toast({
+  message: "Event start time cannot be earlier than 8am",
+  state: "warning",
+})`,
+    run: () =>
+      toast({
+        message: "Event start time cannot be earlier than 8am",
+        state: "warning",
+      }),
   },
   {
     kind: "error",
     label: "Error",
-    code: `toast.error("Event has not been created")`,
-    run: () => toast.error("Event has not been created"),
+    code: `toast({ message: "Event has not been created", state: "error" })`,
+    run: () => toast({ message: "Event has not been created", state: "error" }),
   },
   {
     kind: "action",
     label: "Action",
-    code: `const id = toast.add({
-  title: "Event has been created",
-  actionProps: {
-    children: "Undo",
-    onClick() {
-      toast.close(id)
+    code: `const id = "event-created"
+toast({
+  id,
+  message: "Event has been created",
+  state: "success",
+  action: {
+    label: "Undo",
+    run() {
+      dismissToast(id)
     },
   },
 })`,
     run: () => {
-      const id = toast.add({
-        title: "Event has been created",
-        type: "success",
-        actionProps: {
-          children: "Undo",
-          onClick() {
-            toast.close(id);
-            toast.info("Undone");
+      const id = `event-${Date.now()}`;
+      toast({
+        id,
+        message: "Event has been created",
+        state: "success",
+        action: {
+          label: "Undo",
+          run() {
+            dismissToast(id);
+            toast({ message: "Undone", state: "info" });
           },
         },
       });
     },
   },
   {
-    kind: "promise",
-    label: "Promise",
-    code: `toast.promise(createEvent(), {
-  loading: "Creating event…",
-  success: (data) => \`\${data.name} created\`,
-  error: "Could not create",
-})`,
+    kind: "pending",
+    label: "Pending",
+    code: `const id = "creating-event"
+toast({ id, message: "Creating event…", state: "pending" })
+await createEvent()
+toast({ id, message: "Event created", state: "success" })`,
     run: () => {
-      toast.promise(
-        new Promise<{ name: string }>((resolve, reject) => {
-          window.setTimeout(() => {
-            if (Math.random() > 0.35) {
-              resolve({ name: "Event" });
-            } else {
-              reject(new Error("Network error"));
-            }
-          }, 1400);
-        }),
-        {
-          loading: "Creating event…",
-          success: (data) => `${data.name} created`,
-          error: (err) =>
-            err instanceof Error ? err.message : "Could not create",
-        },
-      );
+      const id = `creating-${Date.now()}`;
+      toast({ id, message: "Creating event…", state: "pending" });
+      window.setTimeout(() => {
+        if (Math.random() > 0.35) {
+          toast({ id, message: "Event created", state: "success" });
+        } else {
+          toast({ id, message: "Could not create", state: "error" });
+        }
+      }, 1400);
     },
   },
 ];

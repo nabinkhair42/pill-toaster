@@ -7,9 +7,9 @@
       "name": "pill-toaster",
       "type": "registry:ui",
       "title": "Pill Toaster",
-      "description": "An opinionated pill toast for React — one thing well, built on Base UI and themed with shadcn tokens.",
-      "dependencies": ["@base-ui/react", "lucide-react"],
-      "registryDependencies": ["utils"],
+      "description": "An opinionated pill toast for React — one thing well. Frosted pill, stacked pile, smoky drag-to-dismiss.",
+      "dependencies": ["motion", "lucide-react"],
+      "registryDependencies": ["button", "utils"],
       "files": [
         {
           "path": "src/components/ui/pill-toaster.tsx",

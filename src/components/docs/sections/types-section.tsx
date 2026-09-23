@@ -5,8 +5,9 @@ export function TypesSection() {
     <section>
       <h2 id="types">Types</h2>
       <p>
-        Customize the type of toast you want to render, and pass an options
-        object as the second argument. Action and promise flows live here too.
+        Pick a status per toast with the <code>state</code> field. Actions ride
+        along in the same object, and <code>pending</code> plus a reused{" "}
+        <code>id</code> covers async flows.
       </p>
       <TypesDemo />
     </section>

@@ -6,11 +6,10 @@ export function PositionSection() {
       <h2 id="position">Position</h2>
       <p>
         Control placement with the <code>position</code> prop on{" "}
-        <code>Toaster</code>. Swipe direction follows the edge the toast sits
-        on. Optional <code>offset</code> sets the inset from that edge.
+        <code>Toasts</code>. Drag a pill in any direction to dissolve it.
       </p>
       <pre>
-        <code>{`<Toaster position="bottom-right" offset={24} />`}</code>
+        <code>{`<Toasts position="bottom-right" />`}</code>
       </pre>
       <PositionDemo />
     </section>

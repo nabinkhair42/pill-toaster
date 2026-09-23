@@ -14,7 +14,7 @@ Replace every Sonner import, <Toaster />, and toast.* call with Pill Toaster. Ke
 Run:
 ${installCommand}
 
-This installs \`components/ui/pill-toaster.tsx\` (shadcn registry item). It depends on \`@base-ui/react\`, \`lucide-react\`, and the project's \`cn\` util.
+This installs \`components/ui/pill-toaster.tsx\` (one self-contained shadcn registry item). The CLI installs the \`Button\` prerequisite automatically (registry dependency); \`motion\` and \`lucide-react\` come from npm, plus the project's \`cn\` util.
 
 Remove the \`sonner\` package after the migration compiles.
 
@@ -26,63 +26,63 @@ import { Toaster } from "sonner"
 \`\`\`
 with:
 \`\`\`tsx
-import { Toaster } from "@/components/ui/pill-toaster"
-<Toaster position="top-center" />
+import { Toasts } from "@/components/ui/pill-toaster"
+<Toasts position="top-center" />
 \`\`\`
-Mount once in the root layout. Prefer \`position="top-center"\` (Pill default). If the app relied on Sonner's default \`bottom-right\`, keep \`position="bottom-right"\` explicitly.
+Mount exactly once in the root layout, toasts fire on a global event bus, so a second host renders every toast twice. Prefer \`position="top-center"\` (Pill default). If the app relied on Sonner's default \`bottom-right\`, keep \`position="bottom-right"\` explicitly.
 
 ## Import path
-Replace \`from "sonner"\` with \`from "@/components/ui/pill-toaster"\` for both \`Toaster\` and \`toast\`.
+Replace \`from "sonner"\` with \`from "@/components/ui/pill-toaster"\` for \`Toasts\`, \`toast\`, and \`dismissToast\`. There are no typed helpers — status goes in the options object.
 
 ## Call-site mapping
 | Sonner | Pill Toaster |
 | --- | --- |
-| \`toast("msg")\` | \`toast("msg")\` (Pill defaults to success) |
-| \`toast.success / .error / .info / .warning / .loading\` | same names |
-| \`description\` option | \`description\` |
-| \`duration\` | \`timeout\` (ms; \`0\` = no auto-dismiss) |
-| \`toast.dismiss(id?)\` | \`toast.close(id?)\` |
-| \`toast.promise(p, { loading, success, error })\` | same shape |
-| \`id\` | \`id\` |
-| action object \`{ label, onClick }\` | use \`toast.add({ title, type, actionProps: { children: label, onClick } })\` |
-| \`toast.custom\` / JSX body / headless | not supported — use title + description + typed helpers only |
-| \`cancel\` button | drop or fold into a single \`actionProps\` |
-| \`<Toaster richColors / expand / closeButton / theme / invert />\` | remove — Pill is one pill surface; types only change the icon chip |
-| \`visibleToasts\` | \`limit\` on \`<Toaster />\` (default unlimited) |
-| per-toast \`position\` | not per-toast; set on \`<Toaster />\` |
+| \`toast("msg")\` | \`toast("msg")\` (plain, no icon) |
+| \`toast.success / .error / .info / .warning\` | \`toast({ message, state: "success" / "error" / "info" / "warning" })\` |
+| \`toast.loading\` | \`toast({ message, state: "pending" })\` (sticky until updated) |
+| \`description\` option | not supported — fold it into \`message\` |
+| \`duration\` | \`lifetime\` (ms) |
+| \`toast.dismiss(id?)\` | \`dismissToast(id)\` from the package (\`id\` required) |
+| \`toast.promise(p, { loading, success, error })\` | no helper — fire \`pending\`, then update by id (see below) |
+| \`id\` | \`id\` (same id upserts in place) |
+| action object \`{ label, onClick }\` | \`toast({ message, state, action: { label, run: onClick } })\` |
+| \`toast.custom\` / JSX body / headless | not supported — message strings only |
+| \`cancel\` button | drop or fold into a single \`action\` |
+| \`<Toaster richColors / expand / closeButton / theme / invert />\` | remove — one frosted pill surface; drag a pill to dissolve it |
+| \`visibleToasts\` | not supported — the stack piles and fans |
+| per-toast \`position\` | not per-toast; set on \`<Toasts />\` |
 
 ## Pill API (target)
 \`\`\`tsx
-import { Toaster, toast } from "@/components/ui/pill-toaster"
+import { Toasts, dismissToast, toast } from "@/components/ui/pill-toaster"
 
 toast("Event created")
-toast.success("Event created", { description: "Sunday at 9:00 AM" })
-toast.error("Something went wrong")
-toast.info("Heads up")
-toast.warning("Check the time")
-toast.loading("Saving…") // timeout: 0
+toast({ message: "Event created", state: "success" })
+toast({ message: "Something went wrong", state: "error" })
+toast({ message: "Saving…", state: "pending" }) // sticky
 
-toast.promise(createEvent(), {
-  loading: "Creating…",
-  success: (data) => \`\${data.name} created\`,
-  error: "Could not create",
-})
+const id = "creating-event"
+toast({ id, message: "Creating…", state: "pending" })
+await createEvent()
+toast({ id, message: "Event created", state: "success" })
 
-const id = toast.add({
-  title: "Event created",
-  type: "success",
-  actionProps: { children: "Undo", onClick() { toast.close(id) } },
+const undoId = "event-created"
+toast({
+  id: undoId,
+  message: "Event created",
+  state: "success",
+  action: { label: "Undo", run() { dismissToast(undoId) } },
 })
 \`\`\`
 
-\`Toaster\` props: \`position\`, \`offset\`, \`timeout\`, \`limit\`.
+\`Toasts\` props: \`position\` only.
 
 Docs: ${docsUrl}
 Registry: ${registryUrl}
 
 ## Constraints
-- Do not invent \`toast.custom\`, \`richColors\`, or \`duration\` — use \`timeout\`.
-- Keep the fixed pill UI (icon + title + description + optional action). No custom toast markup.
+- Do not invent \`toast.success\`, \`toast.custom\`, \`toast.promise\`, \`richColors\`, \`description\`, or \`duration\` — use \`state\`, pending + same-id update, and \`lifetime\`.
+- Keep the fixed pill UI (glyph + message + optional action). No custom toast markup.
 - Search the repo for \`sonner\`, \`from "sonner"\`, and \`toast.dismiss\` and fix every hit.
 - After changes, ensure the app typechecks and a sample toast still fires.`,
 
@@ -95,7 +95,7 @@ Replace every react-hot-toast import, <Toaster />, and toast.* call with Pill To
 Run:
 ${installCommand}
 
-This installs \`components/ui/pill-toaster.tsx\` (shadcn registry). Depends on \`@base-ui/react\`, \`lucide-react\`, and \`cn\`.
+This installs \`components/ui/pill-toaster.tsx\` (one self-contained file). The CLI installs the \`Button\` prerequisite automatically; \`motion\` and \`lucide-react\` come from npm, plus \`cn\`.
 
 ## Mount
 Replace:
@@ -105,133 +105,126 @@ import { Toaster } from "react-hot-toast"
 \`\`\`
 with:
 \`\`\`tsx
-import { Toaster } from "@/components/ui/pill-toaster"
-<Toaster position="top-center" />
+import { Toasts } from "@/components/ui/pill-toaster"
+<Toasts position="top-center" />
 \`\`\`
-Drop \`reverseOrder\`, \`gutter\`, \`containerStyle\`, \`containerClassName\`, and \`toastOptions\`. Map global duration via \`timeout\` on \`<Toaster />\` (ms). Map position 1:1 (\`top-left\` | \`top-center\` | \`top-right\` | \`bottom-left\` | \`bottom-center\` | \`bottom-right\`).
+Mount exactly once, global bus, a second host duplicates every toast. Drop \`reverseOrder\`, \`gutter\`, \`containerStyle\`, \`containerClassName\`, and \`toastOptions\`. Map global duration via per-toast \`lifetime\` (ms). Map position 1:1 (\`top-left\` | \`top-center\` | \`top-right\` | \`bottom-left\` | \`bottom-center\` | \`bottom-right\`).
 
 ## Import path
 Replace default/named imports from \`react-hot-toast\` with:
 \`\`\`tsx
-import { Toaster, toast } from "@/components/ui/pill-toaster"
+import { Toasts, dismissToast, toast } from "@/components/ui/pill-toaster"
 \`\`\`
 
 ## Call-site mapping
 | react-hot-toast | Pill Toaster |
 | --- | --- |
-| \`toast("msg")\` | \`toast("msg")\` (success by default) |
-| \`toast.success / .error / .loading\` | same; also use \`toast.info\` / \`toast.warning\` where fitting |
-| \`duration\` | \`timeout\` |
-| \`toast.dismiss(id?)\` | \`toast.close(id?)\` |
-| \`toast.promise(p, { loading, success, error })\` | same shape |
-| \`id\` to update/replace | \`id\` on options / \`toast.update\` |
-| \`toast.custom(<JSX />)\` / render function | not supported — title + description strings/nodes only |
-| inline \`style\` / \`className\` / \`icon\` / emoji-as-API | drop; Pill owns the pill chrome and status icons |
-| \`useToaster\` / headless | not applicable — use the provided \`Toaster\` + \`toast\` helper |
-| \`toastOptions\` on \`<Toaster />\` | use \`timeout\` / \`limit\` / \`offset\` props instead |
+| \`toast("msg")\` | \`toast("msg")\` (plain, no icon) |
+| \`toast.success / .error / .loading\` | \`toast({ message, state: "success" / "error" / "pending" })\`; also \`info\` / \`warning\` where fitting |
+| \`duration\` | \`lifetime\` |
+| \`toast.dismiss(id?)\` | \`dismissToast(id)\` (\`id\` required) |
+| \`toast.promise(p, { loading, success, error })\` | no helper — fire \`pending\`, then update by id |
+| \`id\` to update/replace | \`id\` on options (same id upserts in place) |
+| \`toast.custom(<JSX />)\` / render function | not supported — message strings only |
+| inline \`style\` / \`className\` / \`icon\` / emoji-as-API | drop; Pill owns the pill chrome and status glyphs |
+| \`useToaster\` / headless | not applicable — use the provided \`Toasts\` + \`toast\` helper |
 
 ## Pill API (target)
 \`\`\`tsx
-import { Toaster, toast } from "@/components/ui/pill-toaster"
+import { Toasts, toast } from "@/components/ui/pill-toaster"
 
-toast.success("Successfully toasted!")
-toast.error("This didn't work.")
-toast.loading("Waiting…")
+toast({ message: "Successfully toasted!", state: "success" })
+toast({ message: "This didn't work.", state: "error" })
+toast({ message: "Waiting…", state: "pending" })
 
-toast.promise(save(), {
-  loading: "Saving…",
-  success: "Saved",
-  error: "Could not save",
-})
-
-toast.close() // dismiss all / active — prefer id when you have one
+const id = "saving"
+toast({ id, message: "Saving…", state: "pending" })
+await save()
+toast({ id, message: "Saved", state: "success" })
 \`\`\`
 
-\`Toaster\` props: \`position\`, \`offset\`, \`timeout\`, \`limit\`.
+\`Toasts\` props: \`position\` only.
 
 Docs: ${docsUrl}
 Registry: ${registryUrl}
 
 ## Constraints
-- Never keep \`duration\` — rename to \`timeout\`.
-- Never keep JSX toast bodies from \`toast.custom\` — rewrite to \`toast.success/error/...\` with title/description.
+- Never keep \`duration\` — rename to \`lifetime\`.
+- Never keep JSX toast bodies from \`toast.custom\` — rewrite to message + \`state\`.
 - Grep for \`react-hot-toast\`, \`toast.dismiss\`, and \`toast.custom\` and fix every hit.
-- Typecheck and verify a success + promise toast still work.`,
+- Typecheck and verify a success + pending-update toast still work.`,
 
-  "shadcn-toast": `Migrate this codebase from the default shadcn/ui Base Toast (https://ui.shadcn.com/docs/components/base/toast) to Pill Toaster (${docsUrl}).
+  "shadcn-toast": `Migrate this codebase from the default shadcn/ui Toast (https://ui.shadcn.com/docs/components/toast) to Pill Toaster (${docsUrl}).
 
 ## Goal
-Swap the installed \`@/components/ui/toast\` (or equivalent shadcn toast) for Pill Toaster's pill UI and helper API. Both are Base UI Toast–based, so most \`toast.add\` / \`toast.promise\` / \`toast.close\` calls already match — focus on imports, layout mount, and adopting typed helpers where useful.
+Swap the installed rectangular shadcn toast for Pill Toaster's pill UI and event-bus API. This is a full API change (not just a re-skin): remove the old provider, viewport, and \`useToast\` plumbing; fire toasts via the \`toast\` helper instead.
 
 ## Install
 Run:
 ${installCommand}
 
-This adds \`components/ui/pill-toaster.tsx\`. Keep \`@base-ui/react\` (already required by shadcn toast).
+This adds \`components/ui/pill-toaster.tsx\` (one self-contained file). It depends on \`motion\` and \`lucide-react\` (plus \`cn\` and the auto-installed \`Button\` prerequisite).
 
 ## Mount
-Replace:
+Replace the old provider/viewport setup (often in \`providers.tsx\` or the root layout):
 \`\`\`tsx
-import { Toaster } from "@/components/ui/toast"
-<Toaster />
+import { Toasts } from "@/components/ui/pill-toaster"
+<Toasts position="top-center" />
 \`\`\`
-with:
-\`\`\`tsx
-import { Toaster } from "@/components/ui/pill-toaster"
-<Toaster position="top-center" />
-\`\`\`
+Remove the old \`<Toaster />\` / \`<ToastProvider>\` / \`<ToastViewport>\` mounts, and mount Pill's \`<Toasts />\` exactly once in the root layout (global bus, no dual hosts).
 
 ## Import path
-Replace every \`from "@/components/ui/toast"\` (and any re-exports) with \`from "@/components/ui/pill-toaster"\`.
+Replace every \`from "@/components/ui/toast"\` (and any re-exports, including \`useToast\`) with \`from "@/components/ui/pill-toaster"\`.
 
-After the app compiles, remove the old \`toast\` component files from \`components/ui/\` if nothing else imports them (often \`toast.tsx\` / related). Do not delete shared utils.
+After the app compiles, remove the old toast component files from \`components/ui/\` if nothing else imports them. Do not delete shared utils.
 
 ## Call-site mapping
 | shadcn/ui Toast | Pill Toaster |
 | --- | --- |
-| \`toast.add({ title, description, type })\` | same, or prefer \`toast.success(title, { description })\` etc. |
-| \`type: "success" \\| "info" \\| "warning" \\| "error" \\| "loading"\` | same |
-| \`actionProps\` | same |
-| \`toast.promise\` | same |
-| \`toast.close\` / \`toast.update\` | same |
-| default card-like toast chrome | fixed pill: icon chip + title + description + optional action |
-| \`duration\` if present | \`timeout\` |
+| \`const { toast } = useToast(); toast({ title, description })\` | \`import { toast } ...; toast({ message: title })\` (no hook, no description — fold into message) |
+| \`toast({ title })\` variants | \`toast({ message, state: "success" \\| "info" \\| "warning" \\| "error" \\| "pending" })\` |
+| \`action\` element prop | \`action: { label, run }\` |
+| \`duration\` | \`lifetime\` (ms) |
+| \`toast.dismiss\` from the hook | \`dismissToast(id)\` from the package (\`id\` required) |
+| open/controlled (\`open\`, \`onOpenChange\`) | not supported — fire-and-forget + auto-dismiss |
+| custom JSX title/description | strings only — glyph + message + optional action |
 
-Prefer the Sonner-style helpers Pill ships:
 \`\`\`tsx
-toast("Event created") // success
-toast.success("Event created", { description: "Sunday, December 3 at 9:00 AM" })
-toast.error("Event has not been created")
-toast.info("Be there 10 minutes early")
-toast.warning("Start time cannot be earlier than 8am")
-toast.loading("Creating…")
+toast("Event created") // plain
+toast({ message: "Event created", state: "success" })
+toast({ message: "Event has not been created", state: "error" })
+toast({ message: "Be there 10 minutes early", state: "info" })
+toast({ message: "Start time cannot be earlier than 8am", state: "warning" })
+toast({ message: "Creating…", state: "pending" })
 \`\`\`
 
-Actions stay on \`toast.add\`:
+Actions stay on one call:
 \`\`\`tsx
-const id = toast.add({
-  title: "Event created",
-  type: "success",
-  actionProps: {
-    children: "Undo",
-    onClick() {
-      toast.close(id)
+const id = "event-created"
+toast({
+  id,
+  message: "Event created",
+  state: "success",
+  action: {
+    label: "Undo",
+    run() {
+      dismissToast(id)
     },
   },
 })
 \`\`\`
 
-## Toaster props
-Pill adds \`position\`, \`offset\`, \`timeout\`, and \`limit\` (default unlimited, Sonner-like stacking). Pass through any Base UI provider options you already used when they still apply.
+## Toasts props
+Pill takes \`position\` only. Stacks pile and fan; drag a pill to dissolve it.
 
 Docs: ${docsUrl}
 Registry: ${registryUrl}
 
 ## Constraints
 - Visual redesign is intentional: do not re-skin the pill back into a rectangular shadcn toast.
-- Do not add \`toast.custom\` or rich colored variants — types only change the icon.
-- Grep for \`@/components/ui/toast\` and leftover shadcn toast files; leave no dual Toaster mounted.
-- Typecheck and click through success / error / promise / action demos.`,
+- Do not add \`toast.success\` or rich colored variants — state only changes the glyph.
+- Grep for \`@/components/ui/toast\`, \`useToast\`, and leftover shadcn toast files; leave no dual Toaster mounted.
+- Typecheck and click through success / error / pending-update / action demos.`,
 } as const satisfies Record<string, string>;
 
 export type MigratePromptId = keyof typeof migratePrompts;

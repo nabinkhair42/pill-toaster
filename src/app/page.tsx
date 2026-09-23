@@ -8,16 +8,6 @@ import { toast } from "@/components/ui/pill-toaster";
 import { cn } from "@/lib/utils";
 
 export default function Home() {
-  const todayDate = new Date().toLocaleDateString("en-US", {
-    month: "long",
-    day: "numeric",
-    year: "numeric",
-  });
-  const todayTime = new Date().toLocaleTimeString("en-US", {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-
   return (
     <main className="relative flex min-h-full flex-1 flex-col items-center justify-center overflow-hidden bg-background px-6 py-16">
       <div className="relative z-10 mx-auto flex w-full max-w-3xl flex-col items-center text-center">
@@ -30,7 +20,7 @@ export default function Home() {
         </h1>
 
         <p className="hero-enter hero-enter-delay-2 mt-3 max-w-[40ch] text-pretty text-base leading-normal text-muted-foreground">
-          Success, error, info, warning, loading, and actions — one pill surface
+          Success, error, info, warning, pending, and actions — one frosted pill
           that does the job.
         </p>
 
@@ -39,8 +29,9 @@ export default function Home() {
             type="button"
             size="lg"
             onClick={() =>
-              toast.success("Event created", {
-                description: `${todayDate} at ${todayTime}`,
+              toast({
+                message: "Event created",
+                state: "success",
               })
             }
           >

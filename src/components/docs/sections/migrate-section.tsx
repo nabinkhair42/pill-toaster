@@ -21,10 +21,10 @@ function CopyPromptButton({
     try {
       await navigator.clipboard.writeText(prompt);
       setCopied(true);
-      toast.success("Prompt copied");
+      toast({ message: "Prompt copied", state: "success" });
       window.setTimeout(() => setCopied(false), 1600);
     } catch {
-      toast.error("Couldn’t copy");
+      toast({ message: "Couldn’t copy", state: "error" });
     }
   }
 
@@ -49,8 +49,8 @@ export function MigrateSection() {
       <h2 id="migrate">Migrate</h2>
       <p>
         Switching from another toast library? Copy an agent prompt, paste it
-        into Cursor (or any coding agent), and let it rewrite imports,{" "}
-        <code>Toaster</code> mounts, and call sites for Pill Toaster.
+        into Cursor or any coding agent, and let it rewrite imports,{" "}
+        <code>Toasts</code> mounts, and call sites for Pill Toaster.
       </p>
       <ul className="not-typeset mt-(--typeset-flow) list-none space-y-0 p-0">
         {migrateSources.map((source) => (
@@ -80,9 +80,9 @@ export function MigrateSection() {
       </ul>
       <p>
         Each prompt installs from the registry, maps the old API onto{" "}
-        <code>toast</code> / <code>Toaster</code>, and calls out gaps (custom
-        JSX bodies, <code>duration</code> → <code>timeout</code>,{" "}
-        <code>dismiss</code> → <code>close</code>).
+        <code>toast</code> / <code>Toasts</code>, and calls out gaps (custom JSX
+        bodies, <code>duration</code> → <code>lifetime</code>, promises →
+        pending + same-id update).
       </p>
     </section>
   );

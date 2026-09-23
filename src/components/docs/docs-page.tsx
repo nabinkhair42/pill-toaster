@@ -15,14 +15,9 @@ export function DocsPage() {
       <article className="typeset typeset-docs mx-auto max-w-2xl px-6 py-12 sm:py-16">
         <h1>Documentation</h1>
         <p>
-          A succinct pill toast from Pill Toaster, built on{" "}
-          <a href="https://base-ui.com/react/components/toast">Base UI</a> and
-          themed with{" "}
-          <a href="https://ui.shadcn.com/docs/components/base/toast">
-            shadcn/ui
-          </a>{" "}
-          color tokens. One surface, clear status, swipe to dismiss. Install it
-          from the{" "}
+          A succinct pill toast from Pill Toaster: one frosted surface, clear
+          status, a stacked pile that fans open, drag to dissolve into smoke.
+          Install it from the{" "}
           <a href="https://ui.shadcn.com/docs/registry">shadcn registry</a>.
         </p>
 
