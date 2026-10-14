@@ -8,13 +8,15 @@
     "url": "https://github.com/nabinkhair42/pill-toaster"
   },
   "private": true,
+  "packageManager": "pnpm@12.11.2",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "registry:build": "shadcn build",
     "start": "next start",
     "lint": "biome check",
-    "format": "biome format --write"
+    "format": "biome format --write",
+    "deploy": "wrangler deploy"
   },
   "dependencies": {
     "@base-ui/react": "^1.8.0",
@@ -37,6 +39,7 @@
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "tailwindcss": "^4.3.3",
-    "typescript": "^7.0.2"
+    "typescript": "^7.0.2",
+    "wrangler": "^4.0.0"
   }
 }

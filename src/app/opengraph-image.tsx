@@ -1,6 +1,7 @@
 import { ImageResponse } from "next/og";
 
-export const runtime = "edge";
+// Prerender to a static file for `output: "export"`.
+export const dynamic = "force-static";
 export const alt = "Pill Toaster — an opinionated pill toast for React";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";

@@ -1,0 +1,14 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "pill-toaster",
+  "compatibility_date": "2026-10-01",
+  // Fully static Next.js export (`output: "export"`) — served straight from ./out.
+  // No Worker script (`main`), no adapter: this is a static-assets-only Worker.
+  "assets": {
+    "directory": "./out",
+    // Serve /docs from docs.html; Next emits extensionless HTML (trailingSlash: false).
+    "html_handling": "auto-trailing-slash",
+    // Serve Next's prerendered out/404.html on unknown paths.
+    "not_found_handling": "404-page"
+  }
+}

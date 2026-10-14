@@ -1,0 +1,8 @@
+# Next's metadata image routes emit extension-less files (out/opengraph-image, …),
+# so Cloudflare can't infer their type. Set it so OG scrapers and favicons work.
+/opengraph-image
+  Content-Type: image/png
+/icon
+  Content-Type: image/png
+/apple-icon
+  Content-Type: image/png
